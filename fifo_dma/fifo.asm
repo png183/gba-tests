@@ -80,8 +80,7 @@ t002:
         ; Test if fifo can still be loaded while sound is off
         ; 24 samples should be loaded, but on console a DMA happens
         ; indicating no sampoles are loaded
-        ; also tests that fixed source address in ROM uses all
-        ; non-sequential accesses
+        ; gives unexpected results on hardware
         mov     r0, 0
         str     r0, [r3, REG_SNDCNT]
         str     r0, [r3, REG_SNDFIFOA]
@@ -123,7 +122,8 @@ t002:
         bne     f002a
         mov     r5, r6
         adr     r5, .tmr_read_b
-        ldr     r7, [r5]
+        ldr     r1, [r5]
+        cmp     r7, r1
         bne     f002b
         b       t003
 
@@ -140,7 +140,7 @@ t002:
         dw      0x00800068
 
 .tmr_read_b:
-        dw      0x00800098
+        dw      0x0080008B
 
 f002a:
         mov     r0, 0
@@ -221,8 +221,7 @@ f003:
 
 t004:
         ; test DMA timing with different DMA settings
-        ; also tests that decrementing source address in EWRAM
-        ; uses all non-sequential accesses
+        ; unexpected results on hardware
         mov     r0, 0
         str     r0, [r3, REG_TIM0CNT]
         str     r0, [r3, REG_TIM1CNT]
