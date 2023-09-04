@@ -118,21 +118,12 @@ branch_3:
 
 
 f001a:
-        and     r0, 0xFF
-        mov     r12, r0
-        b       eval
         m_exit  1
 
 f001b:
-        and     r0, 0xFF
-        mov     r12, r0
-        b       eval
         m_exit  2
 
 f001c:
-        and     r0, 0xFF
-        mov     r12, r0
-        b       eval
         m_exit  3
 
 
@@ -251,9 +242,6 @@ f002b:
         m_exit  12
 
 f002c:
-        and     r0, 0xFF
-        mov     r12, r0
-        b       eval
         m_exit  13
 
 f002d:
