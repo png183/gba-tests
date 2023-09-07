@@ -218,7 +218,7 @@ t002:
         ldr     r1, [r4]
         cmp     r0, r1
         bne     f002d
-        b       eval
+        b       t003
 
 .cnt_tmr:
         dw      0x00800000
@@ -242,10 +242,117 @@ f002b:
         m_exit  12
 
 f002c:
+        and     r0, 0xFF
+        mov     r12, r0
+        b       eval
         m_exit  13
 
 f002d:
         m_exit  14
+
+t003:
+        ; loading a register from EWRAM should add one instruction
+        ; to the prefetrcher for each load
+        ; tests what happens when trying to add more than 8 samples
+        mov     r0, 0
+        str     r0, [r3, REG_TIM0CNT]
+        mov     r1, MEM_EWRAM
+        mov     r4, r6
+        adr     r4, .cnt_tmr
+        ldr     r0, [r4]
+        str     r0, [r3, REG_TIM0CNT]
+        ldr     r0, [r4]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        mov     r0, r0
+        mov     r0, r0
+        ldr     r0, [r1]
+        ldr     r0, [r3, REG_TIM0CNT]
+        mov     r4, r6
+        adr     r4, .tmr_read_a
+        ldr     r1, [r4]
+        cmp     r0, r1
+        bne     f003a
+
+        mov     r0, 0
+        str     r0, [r3, REG_TIM0CNT]
+        mov     r1, MEM_EWRAM
+        mov     r4, r6
+        adr     r4, .cnt_tmr
+        ldr     r0, [r4]
+        str     r0, [r3, REG_TIM0CNT]
+        ldr     r0, [r4]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        mov     r0, r0
+        mov     r0, r0
+        mov     r0, r0
+        ldr     r0, [r1]
+        ldr     r0, [r3, REG_TIM0CNT]
+        mov     r4, r6
+        adr     r4, .tmr_read_b
+        ldr     r1, [r4]
+        cmp     r0, r1
+        bne     f003b
+
+        mov     r0, 0
+        str     r0, [r3, REG_TIM0CNT]
+        mov     r1, MEM_EWRAM
+        mov     r4, r6
+        adr     r4, .cnt_tmr
+        ldr     r0, [r4]
+        str     r0, [r3, REG_TIM0CNT]
+        ldr     r0, [r4]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        ldr     r0, [r1]
+        mov     r0, r0
+        mov     r0, r0
+        mov     r0, r0
+        mov     r0, r0
+        ldr     r0, [r1]
+        ldr     r0, [r3, REG_TIM0CNT]
+        mov     r4, r6
+        adr     r4, .tmr_read_c
+        ldr     r1, [r4]
+        cmp     r0, r1
+        bne     f003c
+        b       eval
+
+.cnt_tmr:
+        dw      0x00800000
+
+.tmr_read_a:
+        dw      0x00800039
+
+.tmr_read_b:
+        dw      0x0080003F
+
+.tmr_read_c:
+        dw      0x00800040
+
+f003a:
+        and     r0, 0xFF
+        mov     r12, r0
+        b       eval
+        m_exit  11
+
+f003b:
+        and     r0, 0xFF
+        mov     r12, r0
+        b       eval
+        m_exit  12
+
+f003c:
+        and     r0, 0xFF
+        mov     r12, r0
+        b       eval
+        m_exit  13
 
 eval:
         m_vsync
