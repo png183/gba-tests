@@ -97,15 +97,25 @@ t001:
 
         mov     r7, 0xFF
 
+        mov     r6, r8
+
+        cmp     r6, 0xD7
+
+        bne     f001a
+
         and     r5, r7
         cmp     r5, 0x74
 
-        bne     f001a
+        bne     f001b
 
         mov     r2, 0
         b       test_end
 
 f001a:
+        mov     r2, r6
+        bl      test_end
+
+f001b:
         mov     r2, r5
         bl      test_end
 
