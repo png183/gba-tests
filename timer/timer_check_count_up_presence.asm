@@ -21,7 +21,7 @@ main:
         mov     r3, MEM_IO
         
         ; Use r4 as a zero register
-        mov		r4, 0
+        mov     r4, 0
 
 t001:
         ; Write 0x00040000 to REG_TIM0CNT
@@ -31,7 +31,7 @@ t001:
         
         ; Check count-up bit is clear
         ldr     r0, [r3, REG_TIM0CNT]
-        and		r0, r1
+        and     r0, r1
         
         cmp     r0, r4
         bne     f001
@@ -48,7 +48,7 @@ t002:
         
         ; Check count-up bit is set
         ldr     r0, [r3, REG_TIM1CNT]
-        and		r0, r1
+        and     r0, r1
         
         cmp     r0, r1
         bne     f002
