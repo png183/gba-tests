@@ -27,7 +27,6 @@ main:
         m_word  r5, 0x00040000
 
 t001:
-        ; Write 0x00040000 to REG_TIM3CNT
         mov     r0, 0
         m_word  r1, 0x003C0000
         str     r1, [r3, REG_TIM3CNT]
@@ -44,7 +43,6 @@ f001:
         m_exit  1
 
 t002:
-        ; Write 0x00040000 to REG_TIM2CNT
         mov     r0, 0
         m_word  r1, 0x003C0000
         str     r1, [r3, REG_TIM2CNT]
@@ -61,7 +59,6 @@ f002:
         m_exit  2
 
 t003:
-        ; Write 0x00040000 to REG_TIM1CNT
         mov     r0, 0
         m_word  r1, 0x003C0000
         str     r1, [r3, REG_TIM1CNT]
@@ -78,7 +75,6 @@ f003:
         m_exit  3
 
 t004:
-        ; Write 0x00040000 to REG_TIM0CNT
         mov     r0, 0
         m_word  r1, 0x003C0000
         str     r1, [r3, REG_TIM0CNT]
