@@ -21,41 +21,78 @@ main:
         mov     r3, MEM_IO
         
         ; Use r4 as a zero register
-        mov     r4, 0
+        mov		r4, 0
+        
+        ; Use r5 for expected value of first 3 tests
+        m_word  r5, 0x00040000
 
 t001:
-        ; Write 0x00040000 to REG_TIM0CNT
+        ; Write 0x00040000 to REG_TIM3CNT
         mov     r0, 0
-        m_word  r1, 0x00040000
-        str     r1, [r3, REG_TIM0CNT]
+        m_word  r1, 0x003C0000
+        str     r1, [r3, REG_TIM3CNT]
         
-        ; Check count-up bit is clear
-        ldr     r0, [r3, REG_TIM0CNT]
-        and     r0, r1
+        ; Check count-up bit is set
+        ldr     r0, [r3, REG_TIM3CNT]
+        and		r0, r1
         
-        cmp     r0, r4
+        cmp     r0, r5
         bne     f001
         b       t002
 
 f001:
-        m_exit  1
+        m_exit  3
 
 t002:
+        ; Write 0x00040000 to REG_TIM2CNT
+        mov     r0, 0
+        m_word  r1, 0x003C0000
+        str     r1, [r3, REG_TIM2CNT]
+        
+        ; Check count-up bit is set
+        ldr     r0, [r3, REG_TIM2CNT]
+        and		r0, r1
+        
+        cmp     r0, r5
+        bne     f002
+        b       t003
+
+f002:
+        m_exit  2
+
+t003:
         ; Write 0x00040000 to REG_TIM1CNT
         mov     r0, 0
-        m_word  r1, 0x00040000
+        m_word  r1, 0x003C0000
         str     r1, [r3, REG_TIM1CNT]
         
         ; Check count-up bit is set
         ldr     r0, [r3, REG_TIM1CNT]
-        and     r0, r1
+        and		r0, r1
         
-        cmp     r0, r1
-        bne     f002
+        cmp     r0, r5
+        bne     f003
+        b       t004
+
+f003:
+        m_exit  3
+
+t004:
+        ; Write 0x00040000 to REG_TIM0CNT
+        mov     r0, 0
+        m_word  r1, 0x003C0000
+        str     r1, [r3, REG_TIM0CNT]
+        
+        ; Check count-up bit is clear
+        ldr     r0, [r3, REG_TIM0CNT]
+        and		r0, r1
+        
+        cmp     r0, r4
+        bne     f004
         b       eval
 
-f002:
-        m_exit  2
+f004:
+        m_exit  4
 
 eval:
         m_vsync
