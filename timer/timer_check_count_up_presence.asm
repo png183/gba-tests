@@ -41,7 +41,7 @@ t001:
         b       t002
 
 f001:
-        m_exit  3
+        m_exit  1
 
 t002:
         ; Write 0x00040000 to REG_TIM2CNT
