@@ -114,6 +114,15 @@ t001:
 
         beq     f001f
 
+        mov     r10, 0
+        ldm     r1, {r8, r9, r10}^
+        mov     r10, 0
+        stm     r7, {r10}^
+        ldr     r0, [r7]
+        cmp     r0, 0xF0
+
+        bne     f001g
+
         bl      eval
 
 .mode_data:
@@ -153,6 +162,10 @@ f001e:
 
 f001f:
         mov     r12, 6
+        bl      eval
+
+f001g:
+        mov     r12, 7
         bl      eval
 
 eval:
