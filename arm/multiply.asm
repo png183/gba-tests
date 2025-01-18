@@ -284,9 +284,28 @@ t319:
         bcc     f319
         bvc     f319
 
-        b       multiply_passed
+        b       t320
 
 f319:
         m_exit  319
+
+t320:
+        ; ARM 6: multiply long when rl == rh
+        mov     r0, 251
+        mul     r0, r0, r0
+        mul     r0, r0, r0  ; r0 = 0xEC940E71 (just needs to be big enough to multiply into two registers)
+        umull   r2, r3, r0, r0  ; store upper word in r3 and lower in r2 (result = 0xdaa150410b788de1)
+        dw      0xE0811090  ; umull   r1, r1, r0, r0  ; perform same multiplication, but with rl == rh
+        cmp     r1, r2  ; check that lower word was overwritten
+        beq     f320
+        cmp     r1, r3  ; check that upper word was written
+        bne     f321
+
+        b       multiply_passed
+
+f320:
+        m_exit  320
+f321:
+        m_exit  321
 
 multiply_passed:
