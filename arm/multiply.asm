@@ -301,11 +301,98 @@ t320:
         cmp     r1, r3  ; check that upper word was written
         bne     f321
 
-        b       multiply_passed
+        b       t322
 
 f320:
         m_exit  320
 f321:
         m_exit  321
+
+t322:
+        ; ARM 6: multiply accumulate with PC as accumulator
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE021F393  ; mla     r1, r3, r3, pc
+        add     r0, 4
+        mla     r0, r3, r3, r0
+        cmp     r0, r1  ; check that PC was not offset
+        bne     f322
+
+        b       t323
+
+f322:
+        m_exit  322
+
+t323:
+        ; ARM 6: multiply accumulate with PC as multiplicand
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE021339F  ; mla     r1, pc, r3, r3
+        add     r0, 4
+        mla     r0, r0, r3, r3
+        cmp     r0, r1  ; check that PC was not offset
+        bne     f323
+
+        b       t324
+
+f323:
+        m_exit  323
+
+t324:
+        ; ARM 6: multiply accumulate with PC as multiplier
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE0213F93  ; mla     r1, r3, pc, r3
+        add     r0, 4
+        mla     r0, r3, r0, r3
+        cmp     r0, r1  ; check that PC was not offset
+        bne     f324
+
+        b       t325
+
+f324:
+        m_exit  324
+
+t325:
+        ; ARM 6: multiply with PC as multiplicand
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE001339F  ; mul     r1, pc, r3
+        add     r0, 4
+        mul     r0, r0, r3
+        cmp     r0, r1  ; check that PC was not offset
+        bne     f325
+
+        b       t326
+
+f325:
+        m_exit  325
+
+t326:
+        ; ARM 6: multiply accumulate with PC as multiplier
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE0013F93  ; mul     r1, r3, pc
+        add     r0, 4
+        mul     r0, r3, r0
+        cmp     r0, r1  ; check that PC was not offset
+        bne     f326
+
+        b       multiply_passed
+
+f326:
+        m_exit  326
+
+; todo: add tests for other PC-relative mul, mla, umull, etc
 
 multiply_passed:
