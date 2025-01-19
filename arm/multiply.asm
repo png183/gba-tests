@@ -393,6 +393,4 @@ t326:
 f326:
         m_exit  326
 
-; todo: add tests for other PC-relative mul, mla, umull, etc
-
 multiply_passed:
