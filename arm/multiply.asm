@@ -388,9 +388,43 @@ t326:
         cmp     r0, r1  ; check that PC was not offset
         bne     f326
 
-        b       multiply_passed
+        b       t327
 
 f326:
         m_exit  326
+
+t327:
+        ; ARM 6: multiply long with PC as multiplicand
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE081239F  ; umull   r2, r1, pc, r3
+        add     r0, 4
+        umull   r3, r1, r0, r3
+        cmp     r2, r3  ; check that PC was not offset
+        bne     f327
+
+        b       t328
+
+f327:
+        m_exit  327
+
+t328:
+        ; ARM 6: multiply long with PC as multiplier
+        mov     r3, 251
+        mul     r3, r3, r3
+        mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
+        mov     r0, pc
+        dw      0xE0812F93  ; umull   r2, r1, r3, pc
+        add     r0, 4
+        umull   r3, r1, r3, r0
+        cmp     r2, r3  ; check that PC was not offset
+        bne     f328
+
+        b       multiply_passed
+
+f328:
+        m_exit  328
 
 multiply_passed:
