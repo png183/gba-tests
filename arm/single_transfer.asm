@@ -209,7 +209,7 @@ f363:
         m_exit  363
 
 t364:
-        ; ARM 7: Store PC + 4, but with register offset
+        ; ARM 7: Store PC + 4, with register offset
         mov     r2, 0
         str     pc, [mem, r2]
         mov     r0, pc

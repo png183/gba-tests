@@ -220,10 +220,43 @@ t413:
         bne     f413
 
         add     mem, 32
-        b       halfword_transfer_passed
+        b       t414
 
 f413:
         m_exit  413
+
+t414:
+        ; ARM 8: Store halfword PC + 4
+        dw      0xE04BF0B0  ; strh    pc, [mem]
+        mov     r0, pc
+        ldrh    r1, [mem]
+        lsl     r0, 16
+        lsr     r0, 16  ; fills top half of r0 with zeroes
+        cmp     r1, r0
+        bne     f414
+
+        add     mem, 32
+        b       t415
+
+f414:
+        m_exit  414
+
+t415:
+        ; ARM 8: Store halfword PC + 4, with register offset
+        mov     r2, 0
+        dw      0xE00BF0B2  ; strh    pc, [mem, r0]
+        mov     r0, pc
+        ldrh    r1, [mem]
+        lsl     r0, 16
+        lsr     r0, 16  ; fills top half of r0 with zeroes
+        cmp     r1, r0
+        bne     f415
+
+        add     mem, 32
+        b       halfword_transfer_passed
+
+f415:
+        m_exit  415
 
 halfword_transfer_passed:
         restore mem
