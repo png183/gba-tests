@@ -203,10 +203,25 @@ t363:
         bne     f363
 
         add     mem, 32
-        b       single_transfer_passed
+        b       t364
 
 f363:
         m_exit  363
+
+t364:
+        ; ARM 7: Store PC + 4, but with register offset
+        mov     r2, 0
+        str     pc, [mem, r2]
+        mov     r0, pc
+        ldr     r1, [mem]
+        cmp     r1, r0
+        bne     f364
+
+        add     mem, 32
+        b       single_transfer_passed
+
+f364:
+        m_exit  364
 
 single_transfer_passed:
         restore mem
