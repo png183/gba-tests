@@ -69,10 +69,24 @@ t453:
         cmp     r0, 64
         bne     f453
 
-        b       data_swap_passed
+        add     mem, 32
+        b       t454
 
 f453:
         m_exit  453
+
+t454:
+        ; ARM 7: Swap PC + 4
+        dw      0xE10B209F  ; swp     r2, pc, [mem]
+        mov     r0, pc
+        ldr     r1, [mem]
+        cmp     r1, r0
+        bne     f454
+
+        b       data_swap_passed
+
+f454:
+        m_exit  454
 
 data_swap_passed:
         restore mem
