@@ -253,10 +253,36 @@ t415:
         bne     f415
 
         add     mem, 32
-        b       halfword_transfer_passed
+        b       t416
 
 f415:
         m_exit  415
+
+t416:
+        ; ARM 8: Load halfword immediate offset with pre-increment and writeback to PC
+        dw      0xE1FF00B4  ; ldrh    r0, [pc, 4]!
+        b       f416
+        b       f416
+        b       f416
+        b       t417  ; unlike word, halfword does use +4 offset
+        b       f416
+        b       f416
+
+f416:
+        m_exit  416
+
+t417:
+        ; ARM 8: Same as t416, but with register offset
+        dw      0xE1BF00B4  ; ldrh    r0, [pc], r4!
+        b       f417
+        b       f417
+        b       f417
+        b       halfword_transfer_passed  ; unlike word, halfword does use +4 offset
+        b       f417
+        b       f417
+
+f417:
+        m_exit  417
 
 halfword_transfer_passed:
         restore mem

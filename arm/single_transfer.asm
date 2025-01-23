@@ -267,7 +267,7 @@ t368:
         ; ARM 7: Same as t365, but with decrement
         dw      0xE17F00F4  ; ldrsh   r0, [pc, -4]!
         b       f368
-        b       single_transfer_passed  ; new pc location
+        b       t369  ; new pc location
         b       f368
         b       f368
         b       f368
@@ -275,6 +275,46 @@ t368:
 
 f368:
         m_exit  368
+
+t369:
+        ; ARM 7: Load word immediate with pre-increment and writeback to PC
+        dw      0xE5AF0004  ; ldr     r0, [pc, 4]!
+        b       f369
+        b       f369
+        b       t370  ; new pc location (no offset required this time)
+        b       f369
+        b       f369
+        b       f369
+
+f369:
+        m_exit  369
+
+t370:
+        ; ARM 7: Same as t369, but with post-increment
+        dw      0xE4AF0004  ; ldr     r0, [pc], 4!
+        b       f370
+        b       f370
+        b       t371  ; new pc location (no offset required this time)
+        b       f370
+        b       f370
+        b       f370
+
+f370:
+        m_exit  370
+
+t371:
+        ; ARM 7: Same as t370, but with register offset
+        mov     r4, 4
+        dw      0xE6AF0004  ; ldr     r0, [pc], r4!
+        b       f371
+        b       f371
+        b       single_transfer_passed  ; new pc location (no offset required this time)
+        b       f371
+        b       f371
+        b       f371
+
+f371:
+        m_exit  371
 
 single_transfer_passed:
         restore mem
