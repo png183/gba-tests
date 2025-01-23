@@ -218,10 +218,63 @@ t364:
         bne     f364
 
         add     mem, 32
-        b       single_transfer_passed
+        b       t365
 
 f364:
         m_exit  364
+
+t365:
+        ; ARM 7: Load signed half immediate with pre-increment and writeback to PC
+        dw      0xE1FF00F4  ; ldrsh   r0, [pc, 4]!
+        b       f365
+        b       f365
+        b       f365
+        b       t366  ; new pc location
+        b       f365
+        b       f365
+
+f365:
+        m_exit  365
+
+t366:
+        ; ARM 7: Same as t365, but with post-increment
+        dw      0xE0FF00F4  ; ldrsh   r0, [pc], 4!
+        b       f366
+        b       f366
+        b       f366
+        b       t367  ; new pc location
+        b       f366
+        b       f366
+
+f366:
+        m_exit  366
+
+t367:
+        ; ARM 7: Same as t365, but with register offset
+        mov     r4, 4
+        dw      0xE1BF00F4  ; ldrsh   r0, [pc, r4]!
+        b       f367
+        b       f367
+        b       f367
+        b       t368  ; new pc location
+        b       f367
+        b       f367
+
+f367:
+        m_exit  367
+
+t368:
+        ; ARM 7: Same as t365, but with decrement
+        dw      0xE17F00F4  ; ldrsh   r0, [pc, -4]!
+        b       f368
+        b       single_transfer_passed  ; new pc location
+        b       f368
+        b       f368
+        b       f368
+        b       f368
+
+f368:
+        m_exit  368
 
 single_transfer_passed:
         restore mem
