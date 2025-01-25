@@ -83,10 +83,26 @@ t454:
         cmp     r1, r0
         bne     f454
 
-        b       data_swap_passed
+        b       t455
 
 f454:
         m_exit  454
+
+t455:
+        ; ARM 7: Swap to load value into PC
+        mov     r0, pc
+        add     r0, 16
+        str     r0, [mem]
+        dw      0xE10BF090  ; swp     r15, r0, [mem]
+        b       f455
+        b       f455
+        b       data_swap_passed
+        b       f455
+        b       f455
+        b       f455
+
+f455:
+        m_exit  455
 
 data_swap_passed:
         restore mem
