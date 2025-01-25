@@ -96,13 +96,29 @@ t455:
         dw      0xE10BF090  ; swp     r15, r0, [mem]
         b       f455
         b       f455
-        b       data_swap_passed
+        b       t456  ; PC moves here after swp
         b       f455
         b       f455
         b       f455
 
 f455:
         m_exit  455
+
+t456:
+        ; ARM 7: Swap at PC address
+        mov     r2, 0
+        mov     r0, 0;
+        dw      0xE10F1090  ; swp     r1, r0, pc  ; since this test executes from ROM, the SWP cannot overwrite instructions despite using the address in pc
+        add     r2, 1
+        add     r2, 2  ; this instruction should be loaded into r1
+        add     r2, 4
+        and     r1, 0xff  ; isolate immediate field of the opcode loaded into r1
+        cmp     r1, 2 
+        bne     f456
+        b       data_swap_passed
+
+f456:
+        m_exit  456
 
 data_swap_passed:
         restore mem
