@@ -422,9 +422,63 @@ t328:
         cmp     r2, r3  ; check that PC was not offset
         bne     f328
 
-        b       multiply_passed
+        b       t329
 
 f328:
         m_exit  328
+
+t329:
+        ; ARM 6: multiply long with PC as rl
+        mov     r2, 63  ; set value to check later for if it was overwritten
+        mov     r1, 1
+        mov     r0, pc
+        add     r0, 16
+        dw      0xE082F190  ; umull   pc, r2, r0, r1
+        b       t330  ; r15 cannot be written by multiply long
+        b       f329
+        b       f329
+        b       f329
+        b       f329
+        b       f329
+
+f329:
+        m_exit  329
+
+t330:
+        ; ARM 6: check that rh was overwritten even if write to rl was blocked
+        cmp     r2, 0
+        bne     f330
+        b       t331
+
+f330:
+        m_exit  330
+
+t331:
+        ; ARM 6: multiply long with PC as rh
+        mov     r2, 63  ; set value to check later for if it was overwritten
+        mov     r1, 0x80
+        lsl     r1, 24
+        mov     r0, pc
+        add     r0, 20
+        lsl     r0, 1
+        dw      0xE08F2190  ; umull   r2, pc, r0, r1
+        b       t332  ; r15 cannot be written by multiply long
+        b       f331
+        b       f331
+        b       f331
+        b       f331
+        b       f331
+
+f331:
+        m_exit  331
+
+t332:
+        ; ARM 6: check that rl was overwritten even if write to rh was blocked
+        cmp     r2, 0
+        bne     f332
+        b       multiply_passed
+
+f332:
+        m_exit  332
 
 multiply_passed:
