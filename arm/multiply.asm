@@ -476,9 +476,25 @@ t332:
         ; ARM 6: check that rl was overwritten even if write to rh was blocked
         cmp     r2, 0
         bne     f332
-        b       multiply_passed
+        b       t333
 
 f332:
         m_exit  332
+
+t333:
+        ; ARM 6: multiply with PC as rd
+        mov     r1, 1
+        mov     r0, pc
+        add     r0, 16
+        dw      0xE00F0190  ; mul     pc, r0, r1
+        b       multiply_passed  ; r15 cannot be written by multiply
+        b       f333
+        b       f333
+        b       f333
+        b       f333
+        b       f333
+
+f333:
+        m_exit  333
 
 multiply_passed:
