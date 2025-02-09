@@ -41,6 +41,10 @@ main:
         add    r2, 4
         mov    r0, 3
         str    r0, [r2]
+        add    r2, 4
+        mov    r0, 0
+        str    r0, [r2]
+
 
         mov     r0, 0
         b       t001
@@ -85,6 +89,14 @@ t001:
         cmp     r0, 3
         bne     f001c
 
+        ldm     r1, {r8, r9, r10}^
+        ldm     r8, {r8, r9, r10}^
+        ldr     r0, [r9, +r10]
+        mov     r1, 0x100
+
+        cmp     r0, r1
+        bne     f001d
+
         mov     r12, 0
         bl      eval
 
@@ -105,6 +117,10 @@ f001b:
 
 f001c:
         mov     r12, 3
+        bl      eval
+
+f001d:
+        mov     r12, 4
         bl      eval
 
 eval:
