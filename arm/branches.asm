@@ -58,8 +58,37 @@ t058:
 t059:
         ; undocumented BX encoding - bit 6 of bx can be set
         mov     r12, 59
-        adr     r0, branches_passed
+        adr     r0, t060
         dw      0xE12FFF50  ; bx r0
 
+t060:
+        ; test that BX can write to registers apart from R15 with bits 12-15 acting as destination register field
+        mov     r12, 60
+        mov     r1, 42
+        adr     r0, f060
+        ; note: I had to come up with my own mnemonic for this operation,
+        ; and decided to use "mvx rd, rm",
+        ; with "mvx" standing for "move and exchange"
+        dw      0xE12F1F10  ; mvx r1, r0
+        cmp     r1, r0
+        beq     t061
+f060:
+        m_exit  60
+
+t061:
+        ; test whether MVX can switch into Thumb mode
+        mov     r12, 61
+        mov     r1, 42
+        adr     r0, t061a + 1
+        adr     r2, branches_passed
+        dw      0xE12F1F10  ; mvx r1, r0  ; switches to Thumb mode
+        nop  ; will be executed in ARM mode, since mode is checked at decode stage
+code16
+align 2
+t061a:
+        bx r2  ; recover to ARM mode
+
+code32
+align 4
 branches_passed:
         mov     r12, 0
