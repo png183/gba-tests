@@ -77,6 +77,7 @@ f060:
 
 t061:
         ; test whether MVX can switch into Thumb mode
+        ; todo: check value of r1 afterwards (likely will be one of the following: 42, r0, or r0 & ~1)
         mov     r12, 61
         mov     r1, 42
         adr     r0, t061a + 1
