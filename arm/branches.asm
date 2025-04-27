@@ -66,8 +66,8 @@ t060:
         mov     r12, 60
         mov     r1, 42
         adr     r0, f060
-        ; note: I had to come up with my own mnemonic for this operation,
-        ; and decided to use "mvx rd, rm",
+        ; note: I had to come up with my own syntax for this operation,
+        ; and decided to use the mnemonic "mvx rd, rm",
         ; with "mvx" standing for "move and exchange"
         dw      0xE12F1F10  ; mvx r1, r0
         cmp     r1, r0
@@ -77,11 +77,10 @@ f060:
 
 t061:
         ; test whether MVX can switch into Thumb mode
-        ; todo: check value of r1 afterwards (likely will be one of the following: 42, r0, or r0 & ~1)
         mov     r12, 61
         mov     r1, 42
         adr     r0, t061a + 1
-        adr     r2, branches_passed
+        adr     r2, t062
         dw      0xE12F1F10  ; mvx r1, r0  ; switches to Thumb mode
         nop  ; will be executed in ARM mode, since mode is checked at decode stage
 code16
@@ -91,5 +90,12 @@ t061a:
 
 code32
 align 4
+t062:
+        ; check value in r1 after MVX with mode switch
+        mov     r12, 62
+        cmp     r1, r0
+        beq     branches_passed
+        m_exit  62
+
 branches_passed:
         mov     r12, 0
