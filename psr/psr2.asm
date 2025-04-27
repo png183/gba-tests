@@ -28,7 +28,7 @@ t001:
         ; test reading/writing extension field (should always be zero)
         mov     r3, 0xff
         lsl     r3, 8
-        mov     r2, 0x42
+        mov     r2, 0xff
         lsl     r2, 8
         msr     cpsr_x, r2
         mrs     r1, cpsr
@@ -54,6 +54,8 @@ t004:
 
 t005:
         ; test reading/writing undocumented CPSR flag bits (should always be zero)
+        mov     r0, 0
+        msr     cpsr_f, r0  ; clear flags before test
         lsl     r2, 8
         lsl     r3, 8
         msr     cpsr_f, r2
@@ -62,9 +64,8 @@ t005:
         cmp     r1, r2
         beq     f005
 t006:
-        lsr     r3, 4
-        and     r1, r3
-        cmp     r1, 0
+        lsr     r1, 24
+        cmp     r1, 0xf0  ; upper 4 bits are written, lower 4 are discarded
         bne     f006
 
 t007:
@@ -84,7 +85,7 @@ t007:
 t008:
         ; test whether bit 4 of SPSR mode is forced to 1
         mov     r2, 0x03
-        dw      0xE161F002  ; msr     spsr_c, r2
+        dw      0xE161F002  ; msr spsr_c, r2
         mrs     r1, spsr
         and     r1, 0xFF
         cmp     r1, 0x13
@@ -93,6 +94,38 @@ t008:
         ; re-enter SYS mode
         mov     r2, 0x1F
         msr     cpsr_c, r2
+
+t009:
+        ; test MSR shift field
+        mov     r0, 0
+        msr     cpsr_f, r0  ; clear flags before test
+        mov     r3, 0xf0
+        lsl     r3, 24
+        mov     r2, 1
+        dw      0xE128FF82  ; msr cpsr_f, r2 lsl #31
+        mrs     r1, cpsr
+        mov     r0, 1
+        lsl     r0, 31
+        and     r0, r3
+        and     r1, r3
+        cmp     r1, r0
+        bne     f009
+
+t010:
+        ; test MSR shift type field
+        mov     r0, 0
+        msr     cpsr_f, r0  ; clear flags before test
+        mov     r3, 0xf0
+        lsl     r3, 24
+        mov     r2, 1
+        dw      0xE128F162  ; msr cpsr_f, r2 ror 2
+        mrs     r1, cpsr
+        mov     r0, 1
+        lsl     r0, 30
+        and     r0, r3
+        and     r1, r3
+        cmp     r1, r0
+        bne     f010
 
         bl      eval
 
@@ -142,6 +175,18 @@ f008:
         mov     r1, 0x1F
         msr     cpsr_c, r1
         mov     r12, 8
+        bl      eval
+
+f009:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 9
+        bl      eval
+
+f010:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 10
         bl      eval
 
 eval:
