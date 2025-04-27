@@ -49,5 +49,17 @@ t056:
         mov     r12, 56
         bl      t057
 
+t058:
+        ; undocumented BX encoding - bit 5 of bx can be set
+        mov     r12, 58
+        adr     r0, t059
+        dw      0xE12FFF30  ; bx r0
+
+t059:
+        ; undocumented BX encoding - bit 6 of bx can be set
+        mov     r12, 59
+        adr     r0, branches_passed
+        dw      0xE12FFF50  ; bx r0
+
 branches_passed:
         mov     r12, 0
