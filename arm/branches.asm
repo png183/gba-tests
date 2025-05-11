@@ -197,8 +197,77 @@ t070:
         lsr     r1, 28
         lsr     r2, 28
         cmp     r1, r2
-        beq     branches_passed
+        beq     t071
         m_exit  70
 
+align 256
+t071:
+        ; BX with mask field = 0b0001 with exchange operation
+        mov     r12, 71
+        adr     r0, t071a + 1  ; will switch CPU into FIQ mode upon bx r0
+        adr     r1, t072
+        nop
+        dw      0xE121FF10  ; bx r0
+        m_exit  71
+code16
+align 2
+t071a:
+        bx r1  ; recover to ARM mode
+code32
+align 4
+        ; catch any code that accidentally reaches this point
+        msr     cpsr_c, MODE_SYS
+        m_exit  71
+t072:
+        ; check what PSR mode the CPU is now in (expected FIQ)
+        mov     r12, 72
+        mrs     r2, cpsr
+        msr     cpsr_c, MODE_SYS
+        lsl     r2, 27
+        lsr     r2, 27
+        cmp     r2, 0x11
+        beq     t073
+        m_exit  72
+
+align 256
+t073:
+        ; BX with mask field = 0b0001, but put the CPU in a different mode
+        mov     r12, 73
+        adr     r0, t073a + 1  ; will switch CPU into FIQ mode upon bx r0
+        adr     r1, f073
+        nop
+        nop
+        nop
+        nop     ; extra NOPs prevents Thumb mode swap due to mask field
+        nop
+        nop
+        nop
+        nop
+        dw      0xE121FF10  ; bx r0
+f073:
+        msr     cpsr_c, MODE_SYS
+        m_exit  73
+code16
+t073a:
+        bl      f073a  ; condition code ensures this is a NOP in ARM mode
+code32
+align 4
+t074:
+        ; check what PSR mode the CPU is now in (expected FIQ)
+        mov     r12, 74
+        mrs     r2, cpsr
+        msr     cpsr_c, MODE_SYS
+        lsl     r2, 27
+        lsr     r2, 27
+        cmp     r2, 0x11
+        beq     branches_passed
+        m_exit  74
+code16
+align 2
+f073a:
+        bx      r1
+
+code32
+align 4
 branches_passed:
         mov     r12, 0
