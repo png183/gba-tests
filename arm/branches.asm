@@ -82,11 +82,16 @@ t061:
         adr     r0, t061a + 1
         adr     r2, t062
         dw      0xE12F1F10  ; mvx r1, r0  ; switches to Thumb mode
-        nop  ; will be executed in ARM mode, since mode is checked at decode stage
+        nop     ; will be executed in ARM mode, since mode is checked at decode stage
 code16
 align 2
 t061a:
         bx r2  ; recover to ARM mode
+code32
+align 4
+f061:
+        ; catch any code that accidentally reaches this point
+        m_exit  61
 
 code32
 align 4
@@ -94,8 +99,43 @@ t062:
         ; check value in r1 after MVX with mode switch
         mov     r12, 62
         cmp     r1, r0
-        beq     branches_passed
+        beq     t063
         m_exit  62
+
+t063:
+        ; BX with mask field = 0b1001
+        ; todo: test exchange operation
+        mov     r12, 63
+        adr     r0, t064
+        dw      0xE129FF10  ; bx r0
+        m_exit  63
+
+t064:
+        ; BX with mask field = 0b0000
+        ; todo: test exchange operation
+        mov     r12, 64
+        adr     r0, t065
+        dw      0xE120FF10  ; bx r0
+        m_exit  64
+
+t065:
+        ; BX with mask field = 0b1000
+        ; todo: test exchange operation
+        mov     r12, 65
+        adr     r0, t066
+        dw      0xE128FF10  ; bx r0
+        m_exit  65
+t066:
+        ; check PSR flags after BX with mask field = 0b1000
+        mov     r12, 66
+        mrs     r1, cpsr
+        mov     r2, r15
+        lsr     r1, 28
+        lsr     r2, 28
+        cmp     r1, r2
+        beq     branches_passed
+        m_exit  66
+        
 
 branches_passed:
         mov     r12, 0
