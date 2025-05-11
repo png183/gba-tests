@@ -161,7 +161,7 @@ code16
         bl      f068  ; condition code ensures this is a NOP in ARM mode
 code32        
 align 4
-        b       branches_passed
+        b       t069
 code16
 f068:
         bx      r1
@@ -169,6 +169,36 @@ code32
 align 4
 f068a:
         m_exit  68
+
+t069:
+        ; BX with mask field = 0b1000 cannot modify Thumb bit
+        mov     r12, 69
+        adr     r0, t069a + 1
+        adr     r1, f069a
+        dw      0xE128FF10  ; bx r0
+t069a:
+code16
+        bl      f069  ; condition code ensures this is a NOP in ARM mode
+code32        
+align 4
+        b       t070
+code16
+f069:
+        bx      r1
+code32
+align 4
+f069a:
+        m_exit  69
+t070:
+        ; check PSR flags
+        mov     r12, 70
+        mrs     r1, cpsr
+        mov     r2, r15
+        lsr     r1, 28
+        lsr     r2, 28
+        cmp     r1, r2
+        beq     branches_passed
+        m_exit  70
 
 branches_passed:
         mov     r12, 0
