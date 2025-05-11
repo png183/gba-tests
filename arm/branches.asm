@@ -104,7 +104,6 @@ t062:
 
 t063:
         ; BX with mask field = 0b1001
-        ; todo: test exchange operation
         mov     r12, 63
         adr     r0, t064
         dw      0xE129FF10  ; bx r0
@@ -112,7 +111,6 @@ t063:
 
 t064:
         ; BX with mask field = 0b0000
-        ; todo: test exchange operation
         mov     r12, 64
         adr     r0, t065
         dw      0xE120FF10  ; bx r0
@@ -133,9 +131,44 @@ t066:
         lsr     r1, 28
         lsr     r2, 28
         cmp     r1, r2
-        beq     branches_passed
+        beq     t067
         m_exit  66
-        
+
+t067:
+        ; BX with mask field = 0b1001 with exchange operation
+        mov     r12, 67
+        adr     r0, t067a + 1
+        adr     r1, t068
+        dw      0xE129FF10  ; bx r0
+        m_exit  67
+code16
+align 2
+t067a:
+        bx r1  ; recover to ARM mode
+code32
+align 4
+        ; catch any code that accidentally reaches this point
+        m_exit  67
+
+t068:
+        ; BX with mask field = 0b0000 cannot modify Thumb bit
+        mov     r12, 68
+        adr     r0, t068a + 1
+        adr     r1, f068a
+        dw      0xE120FF10  ; bx r0
+t068a:
+code16
+        bl      f068  ; condition code ensures this is a NOP in ARM mode
+code32        
+align 4
+        b       branches_passed
+code16
+f068:
+        bx      r1
+code32
+align 4
+f068a:
+        m_exit  68
 
 branches_passed:
         mov     r12, 0
