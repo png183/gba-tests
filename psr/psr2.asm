@@ -127,6 +127,23 @@ t010:
         cmp     r1, r0
         bne     f010
 
+t011:
+        ; test MSR with RRX
+        mov     r0, 0
+        msr     cpsr_f, r0  ; clear flags before test
+        mov     r3, 0xf0
+        lsl     r3, 24
+        mov     r2, 0xf
+        lsl     r2, 28
+        dw      0xE128F062  ; msr cpsr_f, r2 rrx
+        mrs     r1, cpsr
+        mov     r0, 0x7
+        lsl     r0, 28
+        and     r0, r3
+        and     r1, r3
+        cmp     r1, r0
+        bne     f011
+
         bl      eval
 
 f001:
@@ -187,6 +204,12 @@ f010:
         mov     r1, 0x1F
         msr     cpsr_c, r1
         mov     r12, 10
+        bl      eval
+
+f011:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 11
         bl      eval
 
 eval:
