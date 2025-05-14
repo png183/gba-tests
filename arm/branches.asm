@@ -260,12 +260,38 @@ t074:
         lsl     r2, 27
         lsr     r2, 27
         cmp     r2, 0x11
-        beq     branches_passed
+        beq     t075
         m_exit  74
 code16
 align 2
 f073a:
         bx      r1
+
+code32
+align 4
+t075:
+        ; test ARM-to-ARM BX with misaligned PC
+        mov     r12, 75
+        adr     r1, t075a + 2  ; purposely misalign target address
+        adr     r2, t076
+        bx      r1
+t075a:
+        mov     r0, pc  ; PC should have been misaligned by bx
+        bx      r2
+t076:
+        mov     r1, pc  ; PC should have been realigned by bx
+        and     r0, 3
+        and     r1, 3
+        cmp     r0, 2
+        bne     f075
+        mov     r12, 76
+        cmp     r1, 2
+        beq     f076
+        b       branches_passed
+f075:
+        m_exit  75
+f076:
+        m_exit  76
 
 code32
 align 4
