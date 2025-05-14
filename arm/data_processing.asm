@@ -501,9 +501,28 @@ t235:
         cmp     r8, 0
         beq     f235
 
-        b       data_processing_passed
+        b       t236
 
 f235:
         m_exit  235
+
+t236:
+        ; test whether misaligning R15 is possible via ALU register operations
+        adr     r1, t236a
+        mov     r0, 2
+        add     pc, r0  ; should misalign R15
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        mov     r0, pc
+        bx      r1  ; re-align R15
+t236a:
+        and     r0, 3
+        cmp     r0, 2
+        beq     data_processing_passed
+        m_exit  236
 
 data_processing_passed:
