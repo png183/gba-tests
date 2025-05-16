@@ -1,4 +1,8 @@
 # Warning
+
+prefetcher_branch_thumb_arm_2 crashes on console due to the prefetcher being misaligned when switching from thumb to arm mode. I do not know what the implications of this are for potential damage to hardware.
+
+# Warning (Original warning from jsmolka)
 I don't feel comfortable putting these tests into the test suite. The failures on hardware are probably caused by the flash card.
 
 ## SRAM Mirror
