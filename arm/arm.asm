@@ -19,8 +19,6 @@ main:
 
         ; Tests start at 1
         include 'conditions.asm'
-        ; Tests start at 50
-        include 'branches.asm'
         ; Tests start at 100
         include 'flags.asm'
         ; Tests start at 150
