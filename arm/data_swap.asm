@@ -76,20 +76,21 @@ f453:
         m_exit  453
 
 t454:
-        ; ARM 7: Swap PC + 4
+        ; ARM 10: Swap PC + 4
         dw      0xE10B209F  ; swp     r2, pc, [mem]
         mov     r0, pc
         ldr     r1, [mem]
         cmp     r1, r0
         bne     f454
 
+        add     mem, 32
         b       t455
 
 f454:
         m_exit  454
 
 t455:
-        ; ARM 7: Swap to load value into PC
+        ; ARM 10: Swap to load value into PC
         mov     r0, pc
         add     r0, 16
         str     r0, [mem]
@@ -105,7 +106,7 @@ f455:
         m_exit  455
 
 t456:
-        ; ARM 7: Swap at PC address
+        ; ARM 10: Swap at PC address
         mov     r2, 0
         mov     r0, 0;
         dw      0xE10F1090  ; swp     r1, r0, pc  ; since this test executes from ROM, the SWP cannot overwrite instructions despite using the address in pc
@@ -113,12 +114,40 @@ t456:
         add     r2, 2  ; this instruction should be loaded into r1
         add     r2, 4
         and     r1, 0xff  ; isolate immediate field of the opcode loaded into r1
-        cmp     r1, 2 
+        cmp     r1, 2
         bne     f456
-        b       data_swap_passed
+
+        add     mem, 32
+        b       t457
 
 f456:
         m_exit  456
+
+t457:
+        ; ARM 10: Bits 23, 21, and 20 are ignored when decoding SWP
+        mov     r1, 0x42
+        mov     r0, 0x11
+        mov     r2, 0x7F
+        strb    r2, [mem]
+        dw      0xE1FB1090  ; swpb    r1, r0, [mem]
+        cmp     r1, r2
+        bne     f457
+        b       t458
+
+f457:
+        m_exit  457
+
+t458:
+        ; ARM 10: Verify that a value was stored (ensures this is SWPB and not LDRB)
+        ldrb    r2, [mem]
+        cmp     r2, r0
+        bne     f458
+
+        add     mem, 32
+        b       data_swap_passed
+
+f458:
+        m_exit  458
 
 data_swap_passed:
         restore mem
