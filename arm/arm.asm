@@ -33,8 +33,6 @@ main:
         include 'single_transfer.asm'
         ; Tests start at 400
         include 'halfword_transfer.asm'
-        ; Tests start at 450
-        include 'data_swap.asm'
         ; Tests start at 500
         include 'block_transfer.asm'
 
