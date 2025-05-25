@@ -144,6 +144,21 @@ t011:
         cmp     r1, r0
         bne     f011
 
+t012:
+        ; test reading/writing SPSR in invalid modes (should always contain 0x00000010)
+        mov     r2, 0x0c
+        msr     cpsr_c, r2
+        dw      0xE161F002  ; msr spsr_c, r2
+        lsl     r2, 28
+        dw      0xE168F002  ; msr spsr_f, r2
+        mrs     r1, spsr
+        cmp     r1, 0x10
+        bne     f012
+
+        ; re-enter SYS mode
+        mov     r2, 0x1F
+        msr     cpsr_c, r2
+
         bl      eval
 
 f001:
@@ -210,6 +225,12 @@ f011:
         mov     r1, 0x1F
         msr     cpsr_c, r1
         mov     r12, 11
+        bl      eval
+
+f012:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 12
         bl      eval
 
 eval:
