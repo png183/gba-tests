@@ -276,12 +276,56 @@ t074:
         lsl     r2, 27
         lsr     r2, 27
         cmp     r2, 0x11
-        beq     branches_passed
+        beq     t075
         m_exit  74
 code16
 align 2
 f073a:
         bx      r1
+
+code32
+align 4
+t075:
+        ; test BX from ARM to ARM with bit 22 set (should work as normal)
+        ; todo: try switching into Thumb mode with this
+        mov     r12, 75
+        adr     r0, t076
+        dw      0xE16FFF10  ; bx r0
+        m_exit  75
+
+t076:
+        ; test BX from ARM to Thumb with bit 22 set (should enter ARM mode instead, and write T bit of SPSR)
+        mov     r12, 76
+        adr     r2, f076a
+        msr     cpsr_c, MODE_FIQ
+        adr     r0, t077 + 1
+        dw      0xE16FFF10  ; bx r0
+
+code16
+align 2
+f076:
+       bx       r2
+code32
+align 4
+f076a:
+       msr      cpsr_c, MODE_SYS
+       m_exit   76
+
+code16
+align 4
+t077:
+        bl      f076  ; NOP if reached in ARM mode due to condition code 0xF (NV - never execute)
+code32
+align 4
+        ; check that Thumb bit was written to SPSR
+        mrs     r1, spsr
+        msr     cpsr_c, MODE_SYS
+        mov     r12, 77
+        and     r1, 0x20
+        cmp     r1, 0
+        bne     branches_passed
+        m_exit  77
+
 
 code32
 align 4
