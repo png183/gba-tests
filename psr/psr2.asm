@@ -155,6 +155,26 @@ t012:
         cmp     r1, 0x10
         bne     f012
 
+t013:
+        ; test writing R13 in invalid modes (should be read-only)
+        mov     r0, 0
+        mov     r1, r13
+        mov     r13, 0xff
+        mov     r2, r13
+        mov     r13, r1
+        cmp     r0, r2
+        bne     f013
+
+t014:
+        ; test writing R12 in invalid modes (should be writable)
+        mov     r0, 0
+        mov     r1, r12
+        mov     r12, 0xff
+        mov     r2, r12
+        mov     r12, r1
+        cmp     r0, r2
+        beq     f014
+
         ; re-enter SYS mode
         mov     r2, 0x1F
         msr     cpsr_c, r2
@@ -231,6 +251,18 @@ f012:
         mov     r1, 0x1F
         msr     cpsr_c, r1
         mov     r12, 12
+        bl      eval
+
+f013:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 13
+        bl      eval
+
+f014:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 14
         bl      eval
 
 eval:
