@@ -1,10 +1,8 @@
 This version of arm.gba has been modified significantly from jsmolka's original version.
 
 Changes:
-- Many new tests have been added for R15 offsets on LDR/STR and MUL variants
-- Multiplication tests where R15 is the destination register (write fails on hardware)
-- Added tests for MUL/MLA bit 22. It's a valid encoding but appears to have no effect on the multiplication.
-- branches.asm and data_swap.asm are no longer included in arm.asm, and are instead assembled separately. This was done because they test encodings that are listed as undefined, which may cause the tests to crash if handled incorrectly.
+- Many new tests have been added for R15 offsets on LDR/STR
+- branches.asm, data_swap.asm, and multiply.asm are no longer included in arm.asm, and are instead assembled separately. This was done because they test encodings that are listed as undefined, which may cause the tests to crash if handled incorrectly.
 
 branches.asm and branches.gba:
 - Added tests for bits 5 and 6 of BX (listed as zero in ARM docs, but aren't checked on real hardware)
@@ -15,5 +13,7 @@ data_swap.asm and data_swap.gba:
 - Added tests for R15 offsets
 - Added tests for SWP bits 20, 21, and 23, which should all be ignored when decoding. Effect on execution is unknown, if any.
 
-TODO:
-- Make multiply.asm standalone, for the same reason as branches.asm and data_swap.asm
+multiply.asm and multiply.gba:
+- Added tests for R15 offsets
+- Added tests for R15 as destination register (writing to R15 should fail)
+- Added tests for bit 22 of instruction, which appears to be ignored by decode and execute stages

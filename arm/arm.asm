@@ -27,8 +27,6 @@ main:
         include 'data_processing.asm'
         ; Tests start at 250
         include 'psr_transfer.asm'
-        ; Tests start at 300
-        include 'multiply.asm'
         ; Tests start at 350
         include 'single_transfer.asm'
         ; Tests start at 400
