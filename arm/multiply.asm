@@ -309,7 +309,7 @@ f321:
         m_exit  321
 
 t322:
-        ; ARM 6: multiply accumulate with PC as accumulator
+        ; ARM 5: multiply accumulate with PC as accumulator
         mov     r3, 251
         mul     r3, r3, r3
         mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
@@ -326,7 +326,7 @@ f322:
         m_exit  322
 
 t323:
-        ; ARM 6: multiply accumulate with PC as multiplicand
+        ; ARM 5: multiply accumulate with PC as multiplicand
         mov     r3, 251
         mul     r3, r3, r3
         mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
@@ -343,7 +343,7 @@ f323:
         m_exit  323
 
 t324:
-        ; ARM 6: multiply accumulate with PC as multiplier
+        ; ARM 5: multiply accumulate with PC as multiplier
         mov     r3, 251
         mul     r3, r3, r3
         mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
@@ -360,7 +360,7 @@ f324:
         m_exit  324
 
 t325:
-        ; ARM 6: multiply with PC as multiplicand
+        ; ARM 5: multiply with PC as multiplicand
         mov     r3, 251
         mul     r3, r3, r3
         mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
@@ -377,7 +377,7 @@ f325:
         m_exit  325
 
 t326:
-        ; ARM 6: multiply accumulate with PC as multiplier
+        ; ARM 5: multiply accumulate with PC as multiplier
         mov     r3, 251
         mul     r3, r3, r3
         mul     r3, r3, r3  ; make sure the multiplication is spread over several cycles
@@ -487,7 +487,7 @@ t333:
         mov     r0, pc
         add     r0, 16
         dw      0xE00F0190  ; mul     pc, r0, r1
-        b       multiply_passed  ; r15 cannot be written by multiply
+        b       t334  ; r15 cannot be written by multiply
         b       f333
         b       f333
         b       f333
@@ -496,5 +496,58 @@ t333:
 
 f333:
         m_exit  333
+
+t334:
+        ; ARM 5: Multiply with bit 22 set
+        mov     r0, -4
+        mov     r1, 8
+        dw      0xE0400091 ; mul     r0, r1, r0
+        cmp     r0, -32
+        bne     f334
+
+        b       t335
+
+f334:
+        m_exit  334
+
+t335:
+        ; ARM 5: Multiply with and without bit 22 set (appears to have no effect, including on timings)
+        mov     r4, 0x80
+        lsl     r4, 16
+        mov     r2, 0
+        mov     r3, MEM_IO
+        ; init timer
+        str     r2, [r3, REG_TIM0CNT]
+        str     r4, [r3, REG_TIM0CNT]
+        ; MUL with bit 22 set
+        mov     r0, -4
+        mov     r1, -8
+        dw      0xE0400091 ; mul     r0, r1, r0
+        ; check timer
+        ldr     r5, [r3, REG_TIM0CNT]
+        str     r2, [r3, REG_TIM0CNT]
+        mov     r6, r0
+        ; init timer
+        str     r2, [r3, REG_TIM0CNT]
+        str     r4, [r3, REG_TIM0CNT]
+        ; MUL with bit 22 set
+        mov     r0, -4
+        mov     r1, -8
+        dw      0xE0400091 ; mul     r0, r1, r0
+        ; check timer
+        ldr     r7, [r3, REG_TIM0CNT]
+        str     r2, [r3, REG_TIM0CNT]
+        cmp     r0, r6  ; check values
+        bne     f335
+t336:
+        cmp     r5, r7  ; check timings
+        bne     f336
+
+        b       multiply_passed
+
+f335:
+        m_exit  335
+f336:
+        m_exit  336
 
 multiply_passed:
