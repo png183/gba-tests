@@ -179,6 +179,17 @@ t014:
         mov     r2, 0x1F
         msr     cpsr_c, r2
 
+t015:
+        ; test MRS with bits 7-5 set (should have no effect)
+        mov     r0, 0
+        mov     r1, 0xf0
+        lsl     r1, 24
+        msr     cpsr_f, r1
+        dw      0xE10F00E0  ; mrs     r0, cpsr
+        and     r0, r1
+        cmp     r0, r1
+        bne     f015
+
         bl      eval
 
 f001:
@@ -263,6 +274,12 @@ f014:
         mov     r1, 0x1F
         msr     cpsr_c, r1
         mov     r12, 14
+        bl      eval
+
+f015:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 15
         bl      eval
 
 eval:
