@@ -323,9 +323,31 @@ align 4
         mov     r12, 77
         and     r1, 0x20
         cmp     r1, 0
-        bne     branches_passed
+        bne     t078
         m_exit  77
 
+t078:
+        ; BX with bit 21 clear (avoiding modifying PSR or R15 to be as safe as possible)
+        mov     r12, 78
+        mov     r0, 0xEE
+        mov     r1, 0x42
+        dw      0xE1001F10  ; bx      r1, r0
+        cmp     r0, r1
+        beq     t079
+        m_exit  78
+
+t079:
+        ; Test BX with bit 21 clear can switch into Thumb properly
+        mov     r12, 79
+        adr     r0, t079a + 1
+        adr     r1, branches_passed
+        bx      r0
+
+code16
+align 2
+t079a:
+        ; recover to ARM mode
+        bx      r1
 
 code32
 align 4

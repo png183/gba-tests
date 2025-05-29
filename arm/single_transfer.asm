@@ -218,52 +218,50 @@ t364:
         bne     f364
 
         add     mem, 32
-        b       t369
+        b       t365
 
 f364:
         m_exit  364
 
-; todo: adjust test numbers to account for the tests I initially put here incorrectly
-
-t369:
+t365:
         ; ARM 7: Load word immediate with pre-increment and writeback to PC
         dw      0xE5AF0004  ; ldr     r0, [pc, 4]!
-        b       f369
-        b       f369
-        b       t370  ; new pc location (no offset required this time)
-        b       f369
-        b       f369
-        b       f369
+        b       f365
+        b       f365
+        b       t366  ; new pc location (no offset required this time)
+        b       f365
+        b       f365
+        b       f365
 
-f369:
-        m_exit  369
+f365:
+        m_exit  365
 
-t370:
+t366:
         ; ARM 7: Same as t369, but with post-increment
         dw      0xE4AF0004  ; ldr     r0, [pc], 4!
-        b       f370
-        b       f370
-        b       t371  ; new pc location (no offset required this time)
-        b       f370
-        b       f370
-        b       f370
+        b       f366
+        b       f366
+        b       t367  ; new pc location (no offset required this time)
+        b       f366
+        b       f366
+        b       f366
 
-f370:
-        m_exit  370
+f366:
+        m_exit  366
 
-t371:
+t367:
         ; ARM 7: Same as t370, but with register offset
         mov     r4, 4
         dw      0xE6AF0004  ; ldr     r0, [pc], r4!
-        b       f371
-        b       f371
+        b       f367
+        b       f367
         b       single_transfer_passed  ; new pc location (no offset required this time)
-        b       f371
-        b       f371
-        b       f371
+        b       f367
+        b       f367
+        b       f367
 
-f371:
-        m_exit  371
+f367:
+        m_exit  367
 
 single_transfer_passed:
         restore mem
