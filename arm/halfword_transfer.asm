@@ -277,12 +277,152 @@ t417:
         b       f417
         b       f417
         b       f417
-        b       halfword_transfer_passed  ; unlike word, halfword does use +4 offset
+        b       t418  ; unlike word, halfword does use +4 offset
         b       f417
         b       f417
 
 f417:
         m_exit  417
+
+t418:
+        ; ARM 8: Load signed half immediate with pre-increment and writeback to PC
+        dw      0xE1FF00F4  ; ldrsh   r0, [pc, 4]!
+        b       f418
+        b       f418
+        b       f418
+        b       t419  ; new pc location
+        b       f418
+        b       f418
+
+f418:
+        m_exit  418
+
+t419:
+        ; ARM 8: Same as t418, but with post-increment
+        dw      0xE0FF00F4  ; ldrsh   r0, [pc], 4!
+        b       f419
+        b       f419
+        b       f419
+        b       t420  ; new pc location
+        b       f419
+        b       f419
+
+f419:
+        m_exit  419
+
+t420:
+        ; ARM 8: Same as t418, but with register offset
+        mov     r4, 4
+        dw      0xE1BF00F4  ; ldrsh   r0, [pc, r4]!
+        b       f420
+        b       f420
+        b       f420
+        b       t421  ; new pc location
+        b       f420
+        b       f420
+
+f420:
+        m_exit  420
+
+t421:
+        ; ARM 8: Same as t418, but with decrement
+        dw      0xE17F00F4  ; ldrsh   r0, [pc, -4]!
+        b       f421
+        b       t422  ; new pc location
+        b       f421
+        b       f421
+        b       f421
+        b       f421
+
+f421:
+        m_exit  421
+
+t422:
+        ; ARM 8: Store Signed halfword, immediate offset (undocumented, equivalent to STRH)
+        mov     r1, 0xEE
+        mvn     r0, 0
+        str     r0, [mem]  ; clear section of memory
+        mov     r2, 0x42
+        dw      0xE1CB20F0  ; strsh   r2, [mem, 0]
+        m_word  r2, 0xFFFF0042
+        ldr     r1, [mem]
+        cmp     r1, r2
+        bne     f422
+
+        add     mem, 32
+        b       t423
+
+f422:
+        m_exit  422
+
+t423:
+        ; ARM 8: Store Signed halfword, register offset (undocumented, equivalent to STRH)
+        mov     r1, 0xEE
+        mvn     r0, 0
+        str     r0, [mem]  ; clear section of memory
+        mov     r0, 0
+        mov     r2, 0x42
+        dw      0xE18B20F0  ; strsh   r2, [mem, r0]
+        m_word  r2, 0xFFFF0042
+        ldr     r1, [mem]
+        cmp     r1, r2
+        bne     f423
+
+        add     mem, 32
+        b       t424
+
+f423:
+        m_exit  423
+
+t424:
+        ; ARM 8: Same as t422, but with negative value
+        mov     r1, 0xEE
+        mvn     r0, 0
+        str     r0, [mem]  ; clear section of memory
+        mvn     r2, 0x42
+        dw      0xE1CB20F0  ; strsh   r2, [mem, 0]
+        ldr     r1, [mem]
+        cmp     r1, r2
+        bne     f424
+
+        add     mem, 32
+        b       t425
+
+f424:
+        m_exit  424
+
+t425:
+        ; ARM 8: Same as t424, but with STRSB
+        mov     r1, 0xEE
+        mvn     r0, 0
+        str     r0, [mem]  ; clear section of memory
+        mvn     r2, 0x42
+        dw      0xE1CB20D0  ; strsb   r2, [mem, 0]
+        ldr     r1, [mem]
+        cmp     r1, r2
+        bne     f425
+
+        add     mem, 32
+        b       t426
+
+f425:
+        m_exit  425
+
+t426:
+        ; ARM 8: Misaligned STRSH
+        mov     r0, 0
+        str     r0, [mem]
+        mov     r2, 0xC3
+        dw      0xE1CB20F1  ; strsh   r2, [mem, 1]
+        ldrh    r1, [mem]
+        cmp     r1, r2
+        bne     f426
+
+        add     mem, 32
+        b       halfword_transfer_passed
+
+f426:
+        m_exit  426
 
 halfword_transfer_passed:
         restore mem
