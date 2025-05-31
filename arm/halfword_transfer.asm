@@ -1,3 +1,22 @@
+format binary as 'gba'
+
+include '../lib/constants.inc'
+include '../lib/macros.inc'
+
+macro m_exit test {
+        m_half  r12, test
+        b       eval
+}
+
+header:
+        include '../lib/header.asm'
+
+main:
+        m_test_init
+
+        ; Reset test register
+        mov     r12, 0
+
 halfword_transfer:
         ; Tests for the halfword data transfer instruction
         mem     equ r11
@@ -273,6 +292,7 @@ f416:
 
 t417:
         ; ARM 8: Same as t416, but with register offset
+        mov     r4, 4
         dw      0xE1BF00B4  ; ldrh    r0, [pc], r4!
         b       f417
         b       f417
@@ -426,3 +446,12 @@ f426:
 
 halfword_transfer_passed:
         restore mem
+
+eval:
+        m_vsync
+        m_test_eval r12
+
+idle:
+        b       idle
+
+include '../lib/text.asm'

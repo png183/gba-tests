@@ -29,8 +29,6 @@ main:
         include 'psr_transfer.asm'
         ; Tests start at 350
         include 'single_transfer.asm'
-        ; Tests start at 400
-        include 'halfword_transfer.asm'
         ; Tests start at 500
         include 'block_transfer.asm'
 
