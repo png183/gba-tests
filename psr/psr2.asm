@@ -190,6 +190,56 @@ t015:
         cmp     r0, r1
         bne     f015
 
+t016:
+        ; MSR imm with bit 21 clear (should read from GPR)
+        mov     r0, 0
+        mov     r1, pc
+        dw      0xE30F0000  ; msr r0, r15
+        add     r1, 4
+        cmp     r0, r1
+        bne     f016
+
+t017:
+        ; MSR GPR-to-GPR with different Rn
+        mov     r0, 0
+        mov     r1, 42
+        dw      0xE3010000  ; mov r0, r1
+        cmp     r0, 42
+        bne     f017
+
+t018:
+        ; MSR GPR-to-GPR with different Rd
+        mov     r0, 42
+        mov     r1, 0
+        dw      0xE3001000  ; "mov r1, r0"?
+        cmp     r1, 42
+        bne     f018
+
+t019:
+        ; MSR GPR-to-GPR with different Rm (unused)
+        mov     r0, 0xFE
+        mov     r1, 0
+        mov     r2, 42
+        dw      0xE3001002  ; "mov r1, r0"?
+        cmp     r1, 0xFE
+        bne     f019
+
+t020:
+        ; MSR GPR-to-GPR all fields test
+        mov     r0, 0xFE
+        mov     r1, 1
+        mov     r2, 42
+        mov     r3, 0
+        dw      0xE34031F2  ; "mov r3, r0"?
+        cmp     r3, 0xFE
+        bne     f020
+        cmp     r2, 42
+        bne     f020
+        cmp     r1, 1
+        bne     f020
+        cmp     r0, 0xFE
+        bne     f020
+
         bl      eval
 
 f001:
@@ -280,6 +330,36 @@ f015:
         mov     r1, 0x1F
         msr     cpsr_c, r1
         mov     r12, 15
+        bl      eval
+
+f016:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 16
+        bl      eval
+
+f017:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 17
+        bl      eval
+
+f018:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 18
+        bl      eval
+
+f019:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 19
+        bl      eval
+
+f020:
+        mov     r1, 0x1F
+        msr     cpsr_c, r1
+        mov     r12, 20
         bl      eval
 
 eval:
