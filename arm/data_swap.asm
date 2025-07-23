@@ -163,10 +163,36 @@ t458:
         bne     f458
 
         add     mem, 32
-        b       data_swap_passed
+        b       t459
 
 f458:
         m_exit  458
+
+t459:
+        ; ARM 10: Check SWP timings (should perform read, write, then idle cycle)
+        mov     r4, 0x80
+        lsl     r4, 16
+        mov     r2, 0
+        mov     r3, MEM_IO
+        add     r3, REG_TIM0CNT
+        ; reset timer
+        str     r2, [r3]
+        ; perform SWP on TIM0CNT to start timer
+        swp     r0, r4, [r3]
+        ; load timer value after SWP
+        ldr     r5, [r3]
+        ; reset timer again
+        str     r2, [r3]
+        ; check timer value
+        m_half  r6, 0xffff
+        and     r5, r6
+        cmp     r5, 0x08
+        bne     f459
+
+        b       data_swap_passed
+
+f459:
+        m_exit  459
 
 data_swap_passed:
         restore mem

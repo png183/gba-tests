@@ -12,6 +12,7 @@ branches.asm:
 data_swap.asm:
 - Added tests for R15 offsets
 - Added tests for SWP bits 20, 21, and 23, which should all be ignored when decoding. Effect on execution is unknown, if any.
+- Added tests for SWP timing. Should perform read cycle, write cycle, then idle cycle.
 
 halfword_transfer.asm:
 - Added tests for R15 offsets
