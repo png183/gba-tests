@@ -21,6 +21,8 @@ main:
         include 'mirrors.asm'
         ; Tests start at 50
         include 'video_strb.asm'
+        ; Tests start at 100
+        include 'memcnt.asm'
 
 eval:
         m_vsync
