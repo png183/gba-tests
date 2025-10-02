@@ -162,10 +162,27 @@ f106:
         m_exit  106
 
 t107:
+        ; test BIOS mapped at 0x02000000 is still read-protected
+        mov     r6, 0x02000000
+        mov     r5, 0
+        ldr     r4, [r5]  ; read from unswapped BIOS
+        mov     r0, MEM_IO
+        m_word  r1, 0x0d000021
+        str     r1, [r0, 0x0800]  ; swap BIOS with RAM
+        ldr     r5, [r6]  ; read from swapped BIOS
+        sub     r1, 1
+        str     r1, [r0, 0x0800]  ; restore MEMCNT
+        cmp     r4, r5  ; check that protection was used in both
+        bne     f107
+        b       t108
+
+f107:
+        m_exit  107
+
+t108:
         ; todo - test the following:
         ; IWRAM open bus when accessing disabled EWRAM
-        ; BIOS swap
-        ; BIOS protection when swapped
+        ; Reading BIOS region while executing from end of RAM with BIOS swap
         ; SWI with BIOS swap
         ; EWRAM timing modification
         ; Overclocking EWRAM accesses to 1 cycle?
