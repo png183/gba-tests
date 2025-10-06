@@ -179,10 +179,45 @@ t107:
 f107:
         m_exit  107
 
+t108_iwram:
+        ; code to run from RAM
+        ; r0: address to perform read
+        ; r1: return value
+        ; r14: return address
+        ldr     r1, [r0]
+        mov     r15, r14
+
 t108:
+        ; test BIOS read protection when executing from IWRAM just before BIOS
+        mov     r5, MEM_IO
+        m_word  r4, 0x0d000021
+        str     r4, [r5, 0x0800]  ; swap BIOS with RAM
+        ; install test code in IWRAM
+        adr     r0, t108_iwram
+        m_word  r2, 0x01fffff8  ; destination address
+        mov     r1, r2
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ; test that the same result occurs when reading BIOS from ROM and from IWRAM
+        mov     r0, 0x02000000
+        mov     r1, 0
+        ldr     r3, [r0]
+        mov     r14, r15  ; save PC in LR
+        mov     r15, r2  ; jump to IWRAM code
+        sub     r4, 1
+        str     r4, [r5, 0x0800]  ; restore MEMCNT
+        cmp     r1, r3
+        beq     f108
+        b       t109
+
+f108:
+        m_exit  108
+
+t109:
         ; todo - test the following:
         ; IWRAM open bus when accessing disabled EWRAM
-        ; Reading BIOS region while executing from end of RAM with BIOS swap
         ; SWI with BIOS swap
         ; EWRAM timing modification
         ; Overclocking EWRAM accesses to 1 cycle?
