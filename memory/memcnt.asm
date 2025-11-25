@@ -200,7 +200,7 @@ t108:
         str     r3, [r1], 4
         ldr     r3, [r0], 4
         str     r3, [r1], 4
-        ; test that the same result occurs when reading BIOS from ROM and from IWRAM
+        ; test that the read protected area is now at 0x02000000
         mov     r0, 0x02000000
         mov     r1, 0
         ldr     r3, [r0]
@@ -215,7 +215,141 @@ t108:
 f108:
         m_exit  108
 
+t109_iwram:
+        ; code to run from RAM
+        ; r0: address to perform write
+        ; r1: value to write (1 byte)
+        ; r14: return address
+        strb    r1, [r0]
+        mov     r15, r14
+
 t109:
+        ; test HALTCNT protection
+        mov     r5, MEM_IO
+        add     r6, r5, 0x200
+l109a:
+        ; wait for VCOUNT == 0
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 0
+        bne     l109a
+        ; prepare VBLANK interrupt
+        mov     r1, 0
+        strh    r1, [r6, 0x008]  ; clear IME
+        mov     r1, 0x0001
+        strh    r1, [r6, 0x002]  ; acknowledge VBLANK IRQ
+        strh    r1, [r6, 0x000]  ; enable VBLANK IRQ in IE
+        ldrh    r1, [r5, 0x004]
+        orr     r1, 0x0008
+        strh    r1, [r5, 0x004]  ; enable VBLANK IRQ in PPU
+        ; halt CPU via SWI
+        swi     0x020000
+        ; check VCOUNT (should be 160)
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 160
+        bne     f109
+        ; install test code in IWRAM
+        adr     r0, t109_iwram
+        m_word  r2, 0x03fffff8  ; destination address
+        mov     r1, r2
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+l109b:
+        ; wait for VCOUNT == 0
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 0
+        bne     l109b
+        ; acknowledge VBLANK IRQ
+        mov     r1, 0x0001
+        strh    r1, [r6, 0x002]
+        ; halt CPU via IWRAM code
+        mov     r1, 0  ; store value of 0
+        m_word  r0, 0x04000301  ; store address of HALTCNT
+        mov     r14, r15  ; save PC in LR
+        mov     r15, r2  ; jump to IWRAM code
+        ; throw in some NOPs just to be safe
+        nop
+        nop
+        nop
+        ; check VCOUNT (should not be 160)
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 160
+        beq     f109
+        b       t110
+
+f109:
+        m_exit  109
+
+t110:
+        ; test halting CPU via protected IWRAM code with BIOS swapped
+        mov     r5, MEM_IO
+        m_word  r4, 0x0d000021
+        str     r4, [r5, 0x0800]  ; swap BIOS with RAM
+l110:
+        ; wait for VCOUNT == 0
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 0
+        bne     l110
+        ; acknowledge VBLANK IRQ
+        mov     r1, 0x0001
+        strh    r1, [r6, 0x002]
+        ; halt CPU via IWRAM code
+        m_word  r2, 0x01fffff8
+        mov     r1, 0  ; store value of 0
+        m_word  r0, 0x04000301  ; store address of HALTCNT
+        mov     r14, r15  ; save PC in LR
+        mov     r15, r2  ; jump to IWRAM code
+        sub     r4, 1
+        str     r4, [r5, 0x0800]  ; restore MEMCNT
+        ; check VCOUNT (should not be 160)
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 160
+        beq     f110
+        b       t111
+
+f110:
+        m_exit  110
+
+t111:
+        ; test halting CPU via unprotected IWRAM code with BIOS swapped
+        mov     r5, MEM_IO
+        m_word  r4, 0x0d000021
+        str     r4, [r5, 0x0800]  ; swap BIOS with RAM
+        ; install test code in IWRAM
+        adr     r0, t109_iwram
+        m_word  r2, 0x01fffff0  ; destination address
+        mov     r1, r2
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+l111:
+        ; wait for VCOUNT == 0
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 0
+        bne     l111
+        ; acknowledge VBLANK IRQ
+        mov     r1, 0x0001
+        strh    r1, [r6, 0x002]
+        ; halt CPU via IWRAM code
+        m_word  r2, 0x01fffff0
+        mov     r1, 0  ; store value of 0
+        m_word  r0, 0x04000301  ; store address of HALTCNT
+        mov     r14, r15  ; save PC in LR
+        mov     r15, r2  ; jump to IWRAM code
+        sub     r4, 1
+        str     r4, [r5, 0x0800]  ; restore MEMCNT
+        ; check VCOUNT (should be 160)
+        ldrh    r0, [r5, 0x006]
+        cmp     r0, 160
+        bne     f111
+        b       t112
+
+f111:
+        m_exit  111
+
+t112:
         ; todo - test the following:
         ; IWRAM open bus when accessing disabled EWRAM
         ; SWI with BIOS swap
