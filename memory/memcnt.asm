@@ -349,9 +349,89 @@ l111:
 f111:
         m_exit  111
 
+code16
+align 4
+t112_iwram:
+        ; Thumb code to run from RAM
+        ; r0: address to perform read
+        ; r1: register to hold data read
+        ; r14: return address
+        ldr     r1, [r0]
+        bx      r14
+        db      0xf0, 0xf0
+        db      0xf0, 0xf0
+
+code32
+align 4
 t112:
+        ; test IWRAM open bus
+        ; first, install test code in IWRAM
+        adr     r0, t112_iwram
+        m_word  r2, 0x03fffff8  ; destination address
+        mov     r1, r2
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ; call IWRAM code
+        mov     r0, 0x10000000
+        add     r2, r2, 1  ; ensure branch uses Thumb mode
+        mov     r14, r15  ; save PC in LR
+        bx      r2  ; branch to IWRAM code
+        m_word  r4, 0x4770f0f0
+        cmp     r1, r4
+        bne     f112
+        b       t113
+f112:
+        m_exit  112
+
+t113:
+        ; test EWRAM open bus
+        ; first, install test code in EWRAM
+        adr     r0, t112_iwram
+        m_word  r2, 0x02fffff8  ; destination address
+        mov     r1, r2
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ldr     r3, [r0], 4
+        str     r3, [r1], 4
+        ; call EWRAM code
+        mov     r0, 0x10000000
+        add     r2, r2, 1  ; ensure branch uses Thumb mode
+        mov     r14, r15  ; save PC in LR
+        bx      r2  ; branch to EWRAM code
+        m_word  r4, 0xf0f0f0f0
+        cmp     r1, r4
+        bne     f113
+        b       t114
+f113:
+        m_exit  113
+
+t114:
+        ; test IWRAM open bus from EWRAM region
+        mov     r4, MEM_IO
+        ; disable EWRAM in MEMCNT
+        m_word  r5, 0x0d000000
+        str     r5, [r4, 0x0800]
+        ; call EWRAM code
+        m_word  r2, 0x02fffff8  ; destination address
+        mov     r0, 0x10000000
+        add     r2, r2, 1  ; ensure branch uses Thumb mode
+        mov     r14, r15  ; save PC in LR
+        bx      r2  ; branch to EWRAM code
+        ; restore EWRAM in MEMCNT
+        m_word  r5, 0x0d000020
+        str     r5, [r4, 0x0800]
+        m_word  r4, 0x4770f0f0
+        cmp     r1, r4
+        bne     f114
+        b       t115
+
+f114:
+        m_exit  114
+
+t115:
         ; todo - test the following:
-        ; IWRAM open bus when accessing disabled EWRAM
         ; SWI with BIOS swap
         ; EWRAM timing modification
         ; Overclocking EWRAM accesses to 1 cycle?
